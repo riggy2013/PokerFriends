@@ -142,20 +142,16 @@ cc.Class({
     genNode: function (cardId) {
 
         var node = new cc.Node();
-//        node.setPosition(pointV2.x+Common.cardWidth/2, pointV2.y);
         node.scale = Common.cardScale;
         node.parent = this.node;
         node.attr({cardId: cardId});
         var sprite = node.addComponent(cc.Sprite);
         cc.loader.loadRes("cards", cc.SpriteAtlas, function(err, atlas) {
-            //console.log('atlas', atlas)
             var aCard = new Common.Card();
             aCard.id = cardId;
             var frame = atlas.getSpriteFrame(aCard.toString());
             sprite.spriteFrame = frame;
-            //cc.log(frame);
         });
-//        console.log("x=" + node.x + " y=" + node.y + " cardId=" + node.cardId);
 
         return node;
     },
