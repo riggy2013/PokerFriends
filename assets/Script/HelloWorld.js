@@ -110,8 +110,8 @@ cc.Class({
         var h3BaseV2 = cc.v2(-300, 100);
         var h4BaseV2 = cc.v2(-300, 250);
 
-        var h0NodeList = this.genNodeList(h0CardList);
-        this.setNodeListPos(h0NodeList, h0BaseV2, Common.hAlignEnum.Center);
+        //var h0NodeList = this.genNodeList(h0CardList);
+        //this.setNodeListPos(h0NodeList, h0BaseV2, Common.hAlignEnum.Center);
         var h1NodeList = this.genNodeList(h1CardList);
         this.setNodeListPos(h1NodeList, h1BaseV2, Common.hAlignEnum.Right);
         var h2NodeList = this.genNodeList(h2CardList);
@@ -122,6 +122,9 @@ cc.Class({
         this.setNodeListPos(h4NodeList, h4BaseV2, Common.hAlignEnum.Left);
 
         this.listenEvents();
+
+
+
     },
 
 /*    start() {
@@ -214,6 +217,13 @@ cc.Class({
         this.setNodeListPos(upperNodeList, localUpperCardV2, Common.hAlignEnum.Center);
         var localLowerCardV2 = cc.v2(Common.midPointX, Common.lowerRowBaseY);
         this.setNodeListPos(lowerNodeList, localLowerCardV2, Common.hAlignEnum.Center);
+    },
+
+    btnClick: function (event, customEventData) {
+        var node = event.target;
+        var button = node.getComponent(cc.Button);
+
+        cc.log("node=", node.name, " event=", event.type, " data=", customEventData);
     }
 
 });
