@@ -9,6 +9,10 @@ cc.Class({
             default: null,
             type: cc.Label
         },
+        button: {
+            default: null,
+            type: cc.Button
+        },
         // defaults, set visually when attaching this script to the Canvas
         text: 'Hello, World!',
         localNodeList: [cc.Node],
@@ -222,8 +226,40 @@ cc.Class({
     btnClick: function (event, customEventData) {
         var node = event.target;
         var button = node.getComponent(cc.Button);
+        var h0NodeList  = [];
 
-        cc.log("node=", node.name, " event=", event.type, " data=", customEventData);
+        console.log("button clicked.")
+
+
+        for (let i=this.localNodeList.length-1; i >= 0; i--) {
+            if (this.localNodeList[i].choose) {
+                h0NodeList.unshift(this.localNodeList[i]);
+                this.localNodeList.splice(i, 1);
+            }
+        }
+
+        this.showLocalNodes(this.localNodeList);
+
+        var h0BaseV2 = cc.v2(0, 0);
+
+        this.setNodeListPos(h0NodeList, h0BaseV2, Common.hAlignEnum.Center);
+
+        
+        setTimeout(function() {
+            console.log("Waited for 60 sec");
+            // destroy cards
+            let lengthH0NodeList = h0NodeList.length;
+
+            for (let i = 0; i < lengthH0NodeList; i++) {
+                var h0Node = h0NodeList.pop();
+                h0Node.active = 0;
+                h0Node.destroy();
+            }
+        }, 60_000);
+
+
+
+
     }
 
 });
