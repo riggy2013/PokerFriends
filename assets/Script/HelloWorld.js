@@ -131,15 +131,16 @@ cc.Class({
 
     },
 
-/*    start() {
+    start() {
+/*
         webSocket.connect("ws://localhost:8001");
         if (webSocket.readyState === webSocket.OPEN) {
             webSocket.send_data("hello, world!");
         }
 
         webSocket.close();
-
-    },*/
+*/
+    },
 
     // called every frame
     update: function () {
@@ -238,6 +239,8 @@ cc.Class({
             }
         }
 
+        console.log("localNodeList.length = " + this.localNodeList.length + ", h0NodeList.length = " + h0NodeList.length +".");
+
         this.showLocalNodes(this.localNodeList);
 
         var h0BaseV2 = cc.v2(0, 0);
@@ -246,7 +249,7 @@ cc.Class({
 
         
         setTimeout(function() {
-            console.log("Waited for 60 sec");
+            console.log("Waited for 20 sec");
             // destroy cards
             let lengthH0NodeList = h0NodeList.length;
 
@@ -255,11 +258,11 @@ cc.Class({
                 h0Node.active = 0;
                 h0Node.destroy();
             }
-        }, 60_000);
+        }, 20000);
 
 
 
 
-    }
+    },
 
 });

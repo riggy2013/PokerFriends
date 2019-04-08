@@ -52,7 +52,6 @@
       "z": 0,
       "w": 1
     },
-    "_zIndex": 0,
     "groupIndex": 0,
     "autoReleaseAssets": false,
     "_id": "2d2f792f-a40c-49bb-a189-ed176a246e49"
@@ -76,13 +75,19 @@
       },
       {
         "__id__": 10
+      },
+      {
+        "__id__": 16
       }
     ],
     "_active": true,
     "_level": 0,
     "_components": [
       {
-        "__id__": 16
+        "__id__": 17
+      },
+      {
+        "__id__": 18
       }
     ],
     "_prefab": null,
@@ -127,7 +132,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": "a286bbGknJLZpRpxROV6M94"
   },
@@ -188,7 +192,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": "bajsC4KotFLZ6XLFLKnycL"
   },
@@ -274,7 +277,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": "e2e0crkOLxGrpMxpbC4iQg1"
   },
@@ -313,8 +315,6 @@
       "__id__": 5
     },
     "_enabled": true,
-    "_srcBlendFactor": 770,
-    "_dstBlendFactor": 771,
     "_spriteFrame": {
       "__uuid__": "410fb916-8721-4663-bab8-34397391ace7"
     },
@@ -331,6 +331,8 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_id": "1bi08CbSBHsZSXfV2t6eKB"
   },
   {
@@ -390,7 +392,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": "31f1bH7V69Ajr1iXhluMpTB"
   },
@@ -402,8 +403,6 @@
       "__id__": 8
     },
     "_enabled": true,
-    "_srcBlendFactor": 1,
-    "_dstBlendFactor": 771,
     "_useOriginalSize": false,
     "_string": "Label",
     "_N$string": "Label",
@@ -418,6 +417,7 @@
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
+    "_N$cacheMode": 0,
     "_id": "74saCdhnNHjbyDsdd1bTTt"
   },
   {
@@ -484,7 +484,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": "0eDiR+nxhP4Jw3QwzchthN"
   },
@@ -545,7 +544,6 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "_zIndex": 0,
     "groupIndex": 0,
     "_id": "c6grSalVZM9pvNIttq0ahg"
   },
@@ -557,8 +555,6 @@
       "__id__": 11
     },
     "_enabled": true,
-    "_srcBlendFactor": 1,
-    "_dstBlendFactor": 771,
     "_useOriginalSize": false,
     "_string": "出牌",
     "_N$string": "出牌",
@@ -573,6 +569,7 @@
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 1,
+    "_N$cacheMode": 0,
     "_id": "088Sj4CDhG3p3j7En18Bpt"
   },
   {
@@ -583,8 +580,6 @@
       "__id__": 10
     },
     "_enabled": true,
-    "_srcBlendFactor": 770,
-    "_dstBlendFactor": 771,
     "_spriteFrame": {
       "__uuid__": "f0048c10-f03e-4c97-b9d3-3506e1d58952"
     },
@@ -601,6 +596,8 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
+    "_srcBlendFactor": 770,
+    "_dstBlendFactor": 771,
     "_id": "12LpQxJLFDC4Xmr+0k2lNU"
   },
   {
@@ -698,6 +695,62 @@
     "customEventData": ""
   },
   {
+    "__type__": "cc.Node",
+    "_name": "HelloWorld",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 2
+    },
+    "_children": [],
+    "_active": true,
+    "_level": 1,
+    "_components": [],
+    "_prefab": null,
+    "_opacity": 255,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    },
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 0,
+      "height": 0
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0.5,
+      "y": 0.5
+    },
+    "_position": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_scale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_rotationX": 0,
+    "_rotationY": 0,
+    "_quat": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_skewX": 0,
+    "_skewY": 0,
+    "groupIndex": 0,
+    "_id": "f3bt3nPeZAib2cvh9f+MQX"
+  },
+  {
     "__type__": "cc.Canvas",
     "_name": "",
     "_objFlags": 0,
@@ -713,5 +766,24 @@
     "_fitWidth": false,
     "_fitHeight": true,
     "_id": "6f5cteKmlPh6NGUsUqxlFR"
+  },
+  {
+    "__type__": "280c3rsZJJKnZ9RqbALVwtK",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "label": {
+      "__id__": 9
+    },
+    "button": {
+      "__id__": 14
+    },
+    "text": "Hello, World!",
+    "localNodeList": [],
+    "selCards": [],
+    "_id": "10JfAQhkxFIoLyzo1HRk9U"
   }
 ]
