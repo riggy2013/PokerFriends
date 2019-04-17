@@ -1,5 +1,8 @@
 var Common = require("Common");
 var webSocket = require("websocket");
+var sentData = false;
+
+var date = new Date();
 
 cc.Class({
     extends: cc.Component,
@@ -17,6 +20,7 @@ cc.Class({
         text: 'Hello, World!',
         localNodeList: [cc.Node],
         selCards: [],
+        gameState: 0,
     },
 
     listenEvents() {
@@ -36,7 +40,7 @@ cc.Class({
 
     onChooseStart(event) {
         var mousePos = this.node.convertToNodeSpaceAR(event.getLocation());
-        console.log("Start: " +  mousePos);
+ //       console.log("Start: " +  mousePos);
         for (let i in this.localNodeList) {
             this.selCards[i] = false; // reset select cards
             var nodeBox = new cc.Rect(this.localNodeList[i].x-Common.cardWidth/2, this.localNodeList[i].y-Common.cardHeight/2,
@@ -49,7 +53,7 @@ cc.Class({
     
     onChooseEnd(event) {
         var  mousePos = this.node.convertToNodeSpaceAR(event.getLocation());
-        console.log("End: " + mousePos);
+//        console.log("End: " + mousePos);
         for (let i in this.localNodeList) {
             var nodeBox = new cc.Rect(this.localNodeList[i].x-Common.cardWidth/2, this.localNodeList[i].y-Common.cardHeight/2,
                  Common.cardWidth/2, this.localNodeList[i].choose ? Common.cardHeight-Common.cardRise : Common.cardHeight);
@@ -72,7 +76,7 @@ cc.Class({
 
     onChooseMove(event) {
         var mousePos = this.node.convertToNodeSpaceAR(event.getLocation());
-        console.log("Moving: " + mousePos);
+//        console.log("Moving: " + mousePos);
         for (let i in this.localNodeList) {
             var nodeBox = new cc.Rect(this.localNodeList[i].x-Common.cardWidth/2, this.localNodeList[i].y-Common.cardHeight/2,
                  Common.cardWidth/2, this.localNodeList[i].choose ? Common.cardHeight-Common.cardRise : Common.cardHeight);
@@ -132,18 +136,55 @@ cc.Class({
     },
 
     start() {
-/*
-        webSocket.connect("ws://localhost:8001");
-        if (webSocket.readyState === webSocket.OPEN) {
-            webSocket.send_data("hello, world!");
-        }
 
-        webSocket.close();
-*/
+        webSocket.connect("ws://localhost:8001");
+ //       console.log("webSocket state of " + webSocket.sock.readyState + " at " + date);
+
+        this.gameState = 0;
+ //       if (webSocket.readyState === webSocket.OPEN) {
+ //           webSocket.send_data("hello, world!");
+ //       }
+
+//        webSocket.close();
+
+    },
+
+    gameFSM: function () {
+        switch(this.gameState) {
+            case 0: // init
+                var label = this.button.getComponentInChildren(cc.Label);
+                if (label.string == "叫牌") {
+                    if (webSocket.sock.readyState === webSocket.sock.OPEN) {
+                        webSocket.send_data(JSON.stringify({
+                            state: "0",
+                            ctype: "start",
+                        }));
+                    }
+                    this.gameState = 1; // waiting dist cards
+                }
+            case 1: // waiting dist cards
+                if (webSocket.msgArray.length != 0) {
+                    var newMsg = webSocket.msgArray.shift();
+
+                    var newData = JSON.parse(newMsg);
+
+                    if (newData.state == 1 && newData.ctype == "dist") {
+                        console.log("new card " + newData.card);
+                    }
+                }
+
+        }
     },
 
     // called every frame
     update: function () {
+
+        if (webSocket.sock.readyState === webSocket.sock.OPEN) {
+//            console.log("update at " + date + " when socket state " + webSocket.sock.readyState + " game state " + this.gameState);
+//            webSocket.send_data("hello, world!");
+            this.gameFSM();
+        }
+
 
     },
 
@@ -227,10 +268,15 @@ cc.Class({
     btnClick: function (event, customEventData) {
         var node = event.target;
         var button = node.getComponent(cc.Button);
+        var label = button.getComponentInChildren(cc.Label);
         var h0NodeList  = [];
 
-        console.log("button clicked.")
-
+        console.log("button clicked with text " + label.string);
+        switch (label.string) {
+            case "开始":
+                label.string = "叫牌";
+                break;
+        }
 
         for (let i=this.localNodeList.length-1; i >= 0; i--) {
             if (this.localNodeList[i].choose) {
@@ -239,7 +285,7 @@ cc.Class({
             }
         }
 
-        console.log("localNodeList.length = " + this.localNodeList.length + ", h0NodeList.length = " + h0NodeList.length +".");
+//        console.log("localNodeList.length = " + this.localNodeList.length + ", h0NodeList.length = " + h0NodeList.length +".");
 
         this.showLocalNodes(this.localNodeList);
 
@@ -249,20 +295,19 @@ cc.Class({
 
         
         setTimeout(function() {
-            console.log("Waited for 20 sec");
+//            console.log("Waited for 10 sec");
             // destroy cards
             let lengthH0NodeList = h0NodeList.length;
 
             for (let i = 0; i < lengthH0NodeList; i++) {
                 var h0Node = h0NodeList.pop();
+
                 h0Node.active = 0;
                 h0Node.destroy();
             }
-        }, 20000);
-
-
-
-
+        }, 10000);
     },
+
+
 
 });

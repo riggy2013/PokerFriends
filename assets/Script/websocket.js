@@ -1,19 +1,21 @@
 var websocket = {
     sock: null,
+    msgArray: [],
  
     on_open: function () {
-        this.send_data(JSON.stringify({
+/*        this.send_data(JSON.stringify({
             stype: "auth",
             ctype: "login",
             data: {
                 name: "jianan",
                 pwd: 123456
             }
-        }));
+        })); */
     },
     
     on_message: function (event) {
         console.log("client rcv data=" + event.data);
+        this.msgArray.push(event.data);
     },
  
     on_close: function () {
