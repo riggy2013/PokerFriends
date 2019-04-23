@@ -1,6 +1,6 @@
 
 const numCardInDeck = 54;
-const numDeck = 2;
+var numDeck = 2;
 var numPlayer = 5; // 4~7
 var numTotalCards = numDeck * numCardInDeck;
 const numFaceDownCards = [8, 8, 6, 8];
@@ -57,7 +57,7 @@ function Card (point, suit) {
             if (this.suit < 5)
                 this.point = value%13 + 1;
             else // suit == 5
-            this.point = value%13 + 14;
+                this.point = value%13 + 14;
         }
     });
 }

@@ -3,6 +3,9 @@ var webSocket = require("websocket");
 var sentData = false;
 
 var date = new Date();
+var curPlayId = 0;
+var curBid = [];
+var curPoint = 2;
 
 cc.Class({
     extends: cc.Component,
@@ -71,6 +74,7 @@ cc.Class({
                 }
 
             }
+
         }
     },
 
@@ -92,19 +96,14 @@ cc.Class({
         this.label.string = this.text;
 
         // Show local Cards
-        var localCardList = [5, 5, 52, 53, 1, 4, 6, 9, 15, 18, 33, 33, 18, 9, 7, 23, 45, 31, 22, 19, 13, 14, 20, 20, 21];
+//        var localCardList = [5, 5, 52, 53, 1, 4, 6, 9, 15, 18, 33, 33, 18, 9, 7, 23, 45, 31, 22, 19, 13, 14, 20, 20, 21];
 
         // generate nodes
-        this.localNodeList = this.genNodeList(localCardList);
+//        this.localNodeList = this.genNodeList(localCardList);
 
         // show local nodes
-        this.showLocalNodes(this.localNodeList);
+//        this.showLocalNodes(this.localNodeList);
 
-        for (let i in this.localNodeList) {
-            this.localNodeList[i].attr({choose:false});
-        }
-
-        this.selCards = new Array(this.localNodeList.length);
 
         var h0CardList = [0, 0, 12];
         var h1CardList = [5, 6, 7];
@@ -162,16 +161,25 @@ cc.Class({
                     }
                     this.gameState = 1; // waiting dist cards
                 }
+                break;
             case 1: // waiting dist cards
                 if (webSocket.msgArray.length != 0) {
                     var newMsg = webSocket.msgArray.shift();
 
                     var newData = JSON.parse(newMsg);
 
-                    if (newData.state == 1 && newData.ctype == "dist") {
-                        console.log("new card " + newData.card);
+                    if (newData.state == 1 && newData.ctype == "dist" && newData.player == curPlayId) {
+                        var newNode = this.genNode(newData.card);
+                        newNode.attr({choose:false});
+                        this.insertNode(this.localNodeList, newNode);
+                        this.selCards.push(false);
+
+                                // show local nodes
+                         this.showLocalNodes(this.localNodeList);
+
                     }
                 }
+                break;
 
         }
     },
@@ -203,6 +211,16 @@ cc.Class({
         });
 
         return node;
+    },
+
+    insertNode: function (nodeList, newNode) {
+        // this is a simple but not optimal solution. As it is a small list, it is ok.
+        nodeList.push(newNode); 
+
+
+        nodeList.sort(function(a,b) { return b.cardId-a.cardId}); // TODO: sort with trump card.
+
+        return nodeList;
     },
 
     genNodeList: function (cardList) {
@@ -241,6 +259,7 @@ cc.Class({
 
         for (let i=0; i < nodeList.length; ++i) {
             nodeList[i].setPosition(baseLeftV2.x+Common.cardWidth/2, baseLeftV2.y);
+            nodeList[i].zIndex = i;
             baseLeftV2.addSelf(cc.v2(Common.cardWidth/2, 0));
         }
     },
@@ -265,6 +284,9 @@ cc.Class({
         this.setNodeListPos(lowerNodeList, localLowerCardV2, Common.hAlignEnum.Center);
     },
 
+    // TODO: 1. raise card during dist
+    // TODO: 2, lower row zIndex issue.
+
     btnClick: function (event, customEventData) {
         var node = event.target;
         var button = node.getComponent(cc.Button);
@@ -276,9 +298,47 @@ cc.Class({
             case "开始":
                 label.string = "叫牌";
                 break;
+            case "叫牌":
+                // check legal
+                var bidCardList = [];
+
+                for (var localNode of this.localNodeList) {
+                    if (localNode.choose) {
+                        bidCardList.push(localNode.cardId);
+                        console.log("bidCardList items ", localNode.cardId);
+                    }
+                }
+
+                console.log(bidCardList, curBid, curPoint);
+                if (this.bidLegal(bidCardList, curBid, curPoint)) {
+                    // bid
+                    for (let i=this.localNodeList.length-1; i >= 0; i--) {
+                        if (this.localNodeList[i].choose) {
+                            h0NodeList.unshift(this.localNodeList[i]);
+                            this.localNodeList.splice(i, 1);
+                        }
+                    }
+
+                    this.showLocalNodes(this.localNodeList);
+
+                    var h0BaseV2 = cc.v2(0, 0);
+            
+                    this.setNodeListPos(h0NodeList, h0BaseV2, Common.hAlignEnum.Center);
+
+                    if (webSocket.sock.readyState === webSocket.sock.OPEN) {
+                        webSocket.send_data(JSON.stringify({
+                            state: "1",
+                            ctype: "bid",
+                            numBid: bidCardList.length.toString(),
+                            cardId: bidCardList[0].toString(),
+                        }));
+                    }
+
+
+                }
         }
 
-        for (let i=this.localNodeList.length-1; i >= 0; i--) {
+/*       for (let i=this.localNodeList.length-1; i >= 0; i--) {
             if (this.localNodeList[i].choose) {
                 h0NodeList.unshift(this.localNodeList[i]);
                 this.localNodeList.splice(i, 1);
@@ -306,8 +366,49 @@ cc.Class({
                 h0Node.destroy();
             }
         }, 10000);
+*/
     },
 
+    bidLegal: function(cardIdList, bid, point) {
+        var aCard = new Common.Card();
+        var bidCard = new Common.Card();
+        const allEqual = arr => arr.every( v => v === arr[0] );
 
+        if (cardIdList.length == 0) // empty?
+            return false;
+
+        if (!allEqual(cardIdList))
+            return false;
+
+        aCard.id = cardIdList[0];
+
+        if (bid.length > 0) {
+            bidCard.id = bid[0];
+        }
+
+        if (cardIdList.length == 1) {
+            if (aCard.point != point)
+                return false;
+        } else {
+            if (aCard.point != point && aCard.point != 14 && aCard.point != 15)
+                return false;
+        }
+
+        // if bid is empty
+        if (bid.length == 0) {
+            bid = cardIdList;
+            return true;
+        } else if (cardIdList.length < bid.length) {
+            return false;
+        } else if (cardId.length == bid.length) {
+            if (aCard.point > bidCard.point) {
+                bid = cardIdList;
+                return true;
+            }
+        } else if (cardId.length > bid.length) {
+            bid = cardIdList;
+            return true;
+        }
+    },
 
 });

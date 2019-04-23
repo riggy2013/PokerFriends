@@ -14,7 +14,7 @@ var websocket = {
     },
     
     on_message: function (event) {
-        console.log("client rcv data=" + event.data);
+//        console.log("client rcv data=" + event.data);
         this.msgArray.push(event.data);
     },
  
