@@ -4,7 +4,13 @@ var sentData = false;
 
 var date = new Date();
 var curPlayId = 0;
-var curBid = [];
+var curBid = {
+    length: 0,
+    card: {
+        suit: 0,
+        point: 2,
+    },
+};
 var curPoint = 2;
 
 cc.Class({
@@ -105,13 +111,13 @@ cc.Class({
 //        this.showLocalNodes(this.localNodeList);
 
 
-        var h0CardList = [0, 0, 12];
+//        var h0CardList = [0, 0, 12];
         var h1CardList = [5, 6, 7];
         var h2CardList = [3, 3, 10];
         var h3CardList = [9, 9, 8];
         var h4CardList = [12, 12, 10];
 
-        var h0BaseV2 = cc.v2(0, 0);
+//        var h0BaseV2 = cc.v2(0, 0);
         var h1BaseV2 = cc.v2(300, 100);
         var h2BaseV2 = cc.v2(300, 250);
         var h3BaseV2 = cc.v2(-300, 100);
@@ -155,7 +161,7 @@ cc.Class({
                 if (label.string == "叫牌") {
                     if (webSocket.sock.readyState === webSocket.sock.OPEN) {
                         webSocket.send_data(JSON.stringify({
-                            state: "0",
+                            state: 0,
                             ctype: "start",
                         }));
                     }
@@ -204,8 +210,7 @@ cc.Class({
         node.attr({cardId: cardId});
         var sprite = node.addComponent(cc.Sprite);
         cc.loader.loadRes("cards", cc.SpriteAtlas, function(err, atlas) {
-            var aCard = new Common.Card();
-            aCard.id = cardId;
+            var aCard = new Common.Card(cardId);
             var frame = atlas.getSpriteFrame(aCard.toString());
             sprite.spriteFrame = frame;
         });
@@ -218,7 +223,13 @@ cc.Class({
         nodeList.push(newNode); 
 
 
-        nodeList.sort(function(a,b) { return b.cardId-a.cardId}); // TODO: sort with trump card.
+        nodeList.sort(function(a,b) {
+//            return b.cardId-a.cardId; 
+            var aCard = new Common.Card(a.cardId);
+            var bCard = new Common.Card(b.cardId);
+
+            return(bCard.sortPos(aCard, curBid.card));
+        }); // TODO: sort with trump card.
 
         return nodeList;
     },
@@ -236,7 +247,7 @@ cc.Class({
         return nodeList;
     },
 
-    setNodeListPos: function (nodeList, baseV2, alignType) {
+    setNodeListPos: function (nodeList, baseV2, alignType, baseZIndex = 0) {
 
         var nodeListWidth = 0.5 * (nodeList.length + 1) * Common.cardWidth;
         var adjustX;
@@ -258,8 +269,11 @@ cc.Class({
         var baseLeftV2 = baseV2.add(cc.v2(adjustX, 0));
 
         for (let i=0; i < nodeList.length; ++i) {
-            nodeList[i].setPosition(baseLeftV2.x+Common.cardWidth/2, baseLeftV2.y);
-            nodeList[i].zIndex = i;
+            if (nodeList[i].choose) // raise if choose
+                nodeList[i].setPosition(baseLeftV2.x+Common.cardWidth/2, baseLeftV2.y+Common.cardRise);
+            else
+                nodeList[i].setPosition(baseLeftV2.x+Common.cardWidth/2, baseLeftV2.y);
+            nodeList[i].zIndex = i + baseZIndex;
             baseLeftV2.addSelf(cc.v2(Common.cardWidth/2, 0));
         }
     },
@@ -281,11 +295,8 @@ cc.Class({
         var localUpperCardV2 = cc.v2(Common.midPointX, Common.upperRowBaseY);
         this.setNodeListPos(upperNodeList, localUpperCardV2, Common.hAlignEnum.Center);
         var localLowerCardV2 = cc.v2(Common.midPointX, Common.lowerRowBaseY);
-        this.setNodeListPos(lowerNodeList, localLowerCardV2, Common.hAlignEnum.Center);
+        this.setNodeListPos(lowerNodeList, localLowerCardV2, Common.hAlignEnum.Center, upperNodeList.length);
     },
-
-    // TODO: 1. raise card during dist
-    // TODO: 2, lower row zIndex issue.
 
     btnClick: function (event, customEventData) {
         var node = event.target;
@@ -327,10 +338,11 @@ cc.Class({
 
                     if (webSocket.sock.readyState === webSocket.sock.OPEN) {
                         webSocket.send_data(JSON.stringify({
-                            state: "1",
+                            state: 1,
                             ctype: "bid",
-                            numBid: bidCardList.length.toString(),
-                            cardId: bidCardList[0].toString(),
+                            player: curPlayId,
+                            numBid: bidCardList.length,
+                            cardId: bidCardList[0],
                         }));
                     }
 

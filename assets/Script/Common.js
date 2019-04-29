@@ -18,53 +18,103 @@ const hAlignEnum = {
     "Right": 3 
 };
 Object.freeze(hAlignEnum);
+//                  A, 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, sJ, lJ
+// 13 is reserved for curPoint
+var cardRank = [0, 12, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15];
 
 var  Suit = cc.Enum({
+    n: 0, // null
     d: 1, // diamond
     c: 2, // club
     h: 3, // heart
     s: 4, // spade
-    j: 5, // joker
+    j: 5, // joker, NT
 });
 
 // class of  card
-function Card (point, suit) {
-    Object.defineProperties(this, {
-        point: {
-            value: point, // 1:A, 2~10, 11:J, 12:Q, 13:K, 14: small Joker, 15: large Joker 
-            writable: true
-        },
-        suit: {
-            value: suit,
-            writable: true
-        },
+class Card {
+    suit; // 1: diamond, 2, club, 3, heart, 4, spade, 5: joker
+    point; // 1: A, 2~10: 11:J, 12:Q, 13:K, 14: small Joker, 15: large Joker
+    _id;
 
-        suitName: {
-            get: function() {
-                return  Suit[this.suit];
-            }
-        },
-    });
-
-    Object.defineProperty(this, 'id', {
-        get() {
-            return this._id;
-        },
-        set(value) { // value 0~53, 0~12: club, 13~25: diamond, 26~38: heart, 39~51: spade
-                    // 52: small Joker, 53: large Joker
-            this._id = value;
-            this.suit = Math.floor(value/13) + 1;
+    constructor(suitOrId, point) {
+        if (arguments.length === 1) {
+            this._id = suitOrId;
+            this.suit = Math.floor(suitOrId/13) + 1;
             if (this.suit < 5)
-                this.point = value%13 + 1;
-            else // suit == 5
-                this.point = value%13 + 14;
+                this.point = suitOrId%13 + 1;
+            else // suit == 4
+                this.point = suitOrId%13 + 14;
+        } else if (arguments.length >= 2) {
+            this.suit = suitOrId;
+            this.point = point;
         }
-    });
+    }
+
+    get suitName() {
+        return Suit[this.suit];
+    }
+
+    isTrump(curBid) {
+        if (this.point == curBid.point || this.point == 14 
+            || this.point == 15 || this.suit == curBid.suit)
+            return true;
+        return false;
+    }
+
+    // return true if thisCard > bCard
+    sortPos(bCard, curBidCard) {
+        cardRank[curBidCard.point] = 13;
+        if (this.isTrump(curBidCard) && !bCard.isTrump(curBidCard))
+            return 1;
+        else if (!this.isTrump(curBidCard) && bCard.isTrump(curBidCard))
+            return -1;
+        else if (this.isTrump(curBidCard) && bCard.isTrump(curBidCard)) {
+            if (this.suit == bCard.suit)
+                return cardRank[this.point] - cardRank[bCard.point];
+            else
+                return this.suit - bCard.suit;
+        } else { // not trump cards
+            if (this.suit != bCard.suit)
+                return this.suit - bCard.suit;
+            else
+                return cardRank[this.point] - cardRank[bCard.point];
+        }
+    }
 }
 
 Card.prototype.toString =  function() {
     return this.point + this.suitName;
 };
+
+class Bid {
+    length;
+    card;
+
+    constructor(idList) {
+        const allEqual = arr =>  arr.every (v => v === arr[0]);
+
+        if  (idList.length == 0 || !allEqual(idList)) {
+            length = 0;
+            card = new Card(0, 2);
+        }
+
+        length = idList.length;
+        card = new Card(idList[0]);
+    }
+
+    compare(curBid) {
+        if (this.length > curBid.length) {
+            return true;           
+        } else if (this.length == curBid.length) {
+            if (this.card.point > curBid.card.point)
+                return true;
+            else
+                return false;
+        } else
+            return false;
+    }
+}
 
 module.exports = {
     Suit: Suit,
